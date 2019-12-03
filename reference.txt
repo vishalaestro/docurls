@@ -1,1 +1,2 @@
 https://michalzalecki.com/solve-code-sharing-and-setup-project-with-lerna-and-monorepo/
+https://codeburst.io/monorepos-by-example-part-1-3a883b49047e
