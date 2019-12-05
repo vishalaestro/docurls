@@ -1,26 +1,6 @@
 https://michalzalecki.com/solve-code-sharing-and-setup-project-with-lerna-and-monorepo/
 https://codeburst.io/monorepos-by-example-part-1-3a883b49047e
-import React, { Component } from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-<Select
-                                    
-                                        labelId="demo-simple-select-label"
-                                        id="demo-simple-select"
-                                        value={this.state.selectedvalue}
-                                        onChange={this.triggerchange}
-                                   
-                                        maxHeight= "300px"
-                                        MenuProps={{
-                                            getContentAnchorEl: null,
-                                            anchorOrigin: {
-                                              vertical: "bottom",
-                                              horizontal: "left",
-                                            }
-                                          }}
-                                    >
-                                        <MenuItem value="Select ">Select </MenuItem>
-                                        <MenuItem value="test1">test1 ADMIN</MenuItem>
-                                        <MenuItem value="test2">test2</MenuItem>
-                                        <MenuItem value="test3">test3</MenuItem>
-                                         </Select>
+https://github.com/leangen/graphql-spqr#full-tutorial
+https://medium.com/trabe/graphql-authorization-with-spqr-and-custom-annotations-2b22659ca5b0
+https://www.robinwieruch.de/react-graphql-apollo-tutorial#writing-your-first-react-application-with-graphql-and-apollo-client
+https://dzone.com/articles/graphql-the-future-of-microservices
