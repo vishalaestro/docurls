@@ -12,8 +12,8 @@ mutation addConnection {
     nickName : "viz"
     version : 1
     phones : {
-      number : "123123123"
-      type : LAND_LINE
+      number : "7418927389"
+      type : MOBILE
     }
   }) {
     name
@@ -22,3 +22,9 @@ mutation addConnection {
     }
   }
 } 
+
+query getConnection {
+  connectionDetails(phoneNumber:"7418927389") {
+    type
+  }
+}
