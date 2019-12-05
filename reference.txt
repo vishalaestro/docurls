@@ -4,3 +4,21 @@ https://github.com/leangen/graphql-spqr#full-tutorial
 https://medium.com/trabe/graphql-authorization-with-spqr-and-custom-annotations-2b22659ca5b0
 https://www.robinwieruch.de/react-graphql-apollo-tutorial#writing-your-first-react-application-with-graphql-and-apollo-client
 https://dzone.com/articles/graphql-the-future-of-microservices
+http://localhost:8080/gui
+mutation addConnection {
+  addConnection (person: {
+    address :"OTP"
+    name : "vishal"
+    nickName : "viz"
+    version : 1
+    phones : {
+      number : "123123123"
+      type : LAND_LINE
+    }
+  }) {
+    name
+    phones {
+      number
+    }
+  }
+} 
