@@ -31,3 +31,5 @@ query getConnection {
 https://www.youtube.com/watch?v=xm4LX5fJKZ8
 https://stackoverflow.com/questions/59059543/how-to-set-header-variables-in-graphql-spqr
 https://medium.com/trabe/graphql-authorization-with-spqr-and-custom-annotations-2b22659ca5b0
+
+https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/40
