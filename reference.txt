@@ -56,3 +56,9 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
 		</dependency>
 		
 		https://javadeveloperzone.com/spring-boot/spring-boot-oauth2-jdbc-token-store-example/
+		
+		https://edocs1.tagitmobile.com/confluence/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3Dmobeix%26title%3DReport%2BCodes%2BConfiguration%2B6.6&permissionViolation=true
+		
+		mobeix_server_team_2
+tagit@1234
+
