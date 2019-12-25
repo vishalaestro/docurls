@@ -1,0 +1,131 @@
+package com.mobeix.mxrest.authorizationserver.jwt;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+
+import com.google.gson.Gson;
+import com.mobeix.mxrest.authorizationserver.entity.AuthUser;
+import com.mobeix.mxrest.constants.MxRestConstants;
+
+public class MxTokenEnhancer extends JwtAccessTokenConverter {
+
+   @Autowired
+   public TokenStore tokenStore;
+
+   @Resource(name = "tokenServices")
+   ConsumerTokenServices tokenServices;
+
+   /**
+    * This method is used to enhance the additional information in access tokens and refresh token. Also, it will make sure it will create one accesstoken alone persisted in the DB. If the grant type
+    * is password then external authority(ROLE_E) will be added.
+    *
+    * By getting the encryption level, the user object will be encrypted. 1 - Encrypt user object using AES key. 2 - Encrypt the User object using AES key and also encrypt the AES key using RSA key
+    * 
+    * @param accessToken
+    * @param authentication
+    */
+   @Override
+   public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+
+      Map<String, Object> info = new LinkedHashMap<String, Object>(accessToken.getAdditionalInformation());
+      OAuth2Authentication updateAuthentication = null;
+      OAuth2AccessToken oauthValidation = null;
+
+      if (authentication.getOAuth2Request().isRefresh()) {
+         info.put(MxRestConstants.USER, refreshTokenClaimAdd(authentication));
+         updateAuthentication = addAuthorityToAccessToken(authentication);
+
+      } else if (authentication.getUserAuthentication() != null) {
+         AuthUser user = (AuthUser) authentication.getPrincipal();
+         info.put(MxRestConstants.USER, user);
+      } else {
+         updateAuthentication = addAuthorityToAccessToken(authentication);
+         info.put(MxRestConstants.GRANT_TYPE, MxRestConstants.CLIENT_CREDENTIALS);
+      }
+
+      DefaultOAuth2AccessToken customAccessToken = new DefaultOAuth2AccessToken(accessToken);
+      customAccessToken.setAdditionalInformation(info);
+
+      if (updateAuthentication == null) {
+         oauthValidation = super.enhance(customAccessToken, authentication);
+      } else {
+         oauthValidation = super.enhance(customAccessToken, updateAuthentication);
+      }
+
+      return oauthValidation;
+
+   }
+
+   /**
+    * This method is used to set authority to access token. If grant_type is refresh token, the authority will be extracted from access token else if grant_type is client_credentials then authority
+    * will be external.
+    * 
+    * @param authentication
+    * @return
+    */
+   public OAuth2Authentication addAuthorityToAccessToken(OAuth2Authentication authentication) {
+      OAuth2Authentication updateAuthentication;
+      Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+      if (authentication.getOAuth2Request().isRefresh()) {
+         authorities.add(new SimpleGrantedAuthority(refreshTokenAuthorityAdd(authentication)));
+      } else {
+         authorities.add(new SimpleGrantedAuthority(MxRestConstants.MX_ROLE_EXTERNAL));
+      }
+      Authentication secureAuth = SecurityContextHolder.getContext().getAuthentication();
+      Authentication updateAuthorityAuth = new UsernamePasswordAuthenticationToken(secureAuth.getPrincipal(), secureAuth.getCredentials(), authorities);
+      SecurityContextHolder.getContext().setAuthentication(updateAuthorityAuth);
+      updateAuthentication = new OAuth2Authentication(authentication.getOAuth2Request(), updateAuthorityAuth);
+      return updateAuthentication;
+   }
+
+   /**
+    * This method used to get the Refresh token from request and get the claims from the refresh token.
+    * 
+    * @param authentication
+    * @return
+    */
+   private AuthUser refreshTokenClaimAdd(OAuth2Authentication authentication) {
+      Gson gson = new Gson();
+      Map<String, String> mapString = authentication.getOAuth2Request().getRefreshTokenRequest().getRequestParameters();
+      Map<String, Object> mapObject = decode(mapString.get(MxRestConstants.REFRESH_TOKEN));
+      return gson.fromJson(gson.toJsonTree(mapObject.get(MxRestConstants.USER)), AuthUser.class);
+   }
+
+   /**
+    * This method used to get the Refresh token from request and get the authority from the refresh token.
+    * 
+    * @param authentication
+    * @return
+    */
+   @SuppressWarnings("unchecked")
+   private String refreshTokenAuthorityAdd(OAuth2Authentication authentication) {
+      String authority = MxRestConstants.MX_ROLE_EXTERNAL;
+      Map<String, String> mapString = authentication.getOAuth2Request().getRefreshTokenRequest().getRequestParameters();
+      Map<String, Object> mapObject = decode(mapString.get(MxRestConstants.REFRESH_TOKEN));
+      List<String> authoritiesList = (ArrayList<String>) mapObject.get(MxRestConstants.AUTHORITIES);
+      for (String authorityRef : authoritiesList) {
+         authority = authorityRef;
+      }
+      return authority;
+   }
+   
+}
